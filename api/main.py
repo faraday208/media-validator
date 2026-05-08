@@ -1,6 +1,6 @@
 """
 Image Validator API
-n8n ve diğer sistemlerle entegrasyon için FastAPI.
+Gradio UI ve diğer tüketiciler için FastAPI.
 """
 
 from fastapi import FastAPI, UploadFile, File, HTTPException, Query
@@ -37,7 +37,7 @@ default_validator = FileValidator(default_config)
 # FastAPI app
 app = FastAPI(
     title="Image Validator API",
-    description="Dataset hazırlama için dosya/boyut doğrulama. n8n uyumlu.",
+    description="Dataset hazırlama için dosya/boyut doğrulama.",
     version="1.0.0"
 )
 
@@ -47,7 +47,7 @@ app = FastAPI(
 # ============================================================
 
 class ValidationConfig(BaseModel):
-    """n8n'den gelen validation config - tüm alanlar opsiyonel."""
+    """Override validation config - tüm alanlar opsiyonel."""
     # File validation
     allowed_formats: Optional[List[str]] = Field(None, description="İzin verilen formatlar: jpg, png, webp")
     min_file_size_kb: Optional[int] = Field(None, description="Min dosya boyutu KB")
@@ -150,7 +150,7 @@ async def root():
 
 @app.get("/health")
 async def health():
-    """Health check endpoint for n8n."""
+    """Health check endpoint."""
     return {"status": "healthy"}
 
 
@@ -159,7 +159,7 @@ async def validate_file(file: UploadFile = File(...)):
     """
     Tek dosya validasyonu (upload).
 
-    n8n'de HTTP Request node ile kullanım:
+    HTTP Request ile kullanım:
     - Method: POST
     - URL: http://host:8100/validate/file
     - Body: form-data, key: file
@@ -183,7 +183,7 @@ async def validate_path(path: str = Query(..., description="Sunucudaki dosya yol
     """
     Sunucudaki dosyayı validate et (path ile).
 
-    n8n'de HTTP Request node ile kullanım:
+    HTTP Request ile kullanım:
     - Method: POST
     - URL: http://host:8100/validate/path?path=/path/to/image.jpg
     """
@@ -199,7 +199,7 @@ async def validate_directory(request: DirectoryValidationRequest):
     """
     Klasördeki tüm görselleri validate et.
 
-    n8n'de HTTP Request node ile kullanım:
+    HTTP Request ile kullanım:
     - Method: POST
     - URL: http://host:8100/validate/directory
     - Body (JSON):
