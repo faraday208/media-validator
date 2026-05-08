@@ -9,10 +9,6 @@ keywords = ["image", "validation", "dataset", "preprocessing", "ai"]
 dependencies = [
     "pillow>=10.0.0",
     "pyyaml>=6.0",
-    "fastapi>=0.109.0",
-    "uvicorn>=0.27.0",
-    "python-multipart>=0.0.6",
-    "click>=8.1.0",
     "tqdm>=4.65.0",
 ]
 
