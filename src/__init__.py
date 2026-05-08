@@ -3,7 +3,7 @@
 In-process kullanım için:
     from src import FileValidator, collect_images, apply_action, undo_from_report
 """
-from src.scanner import (
+from .scanner import (
     DEFAULT_IMAGE_EXTS,
     DEFAULT_REPORT_NAME,
     REPORT_VERSION,
@@ -14,7 +14,7 @@ from src.scanner import (
     undo_from_report,
     write_report,
 )
-from src.validators.file_validator import FileValidationResult, FileValidator
+from .validators.file_validator import FileValidationResult, FileValidator
 
 __all__ = [
     "FileValidator",

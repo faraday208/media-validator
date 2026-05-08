@@ -130,7 +130,7 @@ def test_invalid_action_value_raises(validator_config):
 
 
 def test_action_skips_unknown_filename(tmp_path: Path):
-    """Filename root'ta yoksa skipped sayılır."""
+    """Filename root'ta yoksa skipped sayılır (eski rapor formatı, path yok)."""
     res = apply_action(
         [{"valid": False, "filename": "ghost.jpg", "reason": "missing"}],
         source_root=tmp_path,
@@ -138,6 +138,54 @@ def test_action_skips_unknown_filename(tmp_path: Path):
     )
     assert res.entries == []
     assert res.skipped == 1
+
+
+def test_action_uses_absolute_path_not_filename_lookup(tmp_path: Path, validator_config):
+    """
+    v0.2.1 regression: aynı isimli dosyalar farklı alt klasörlerde olduğunda,
+    apply_action result.path'i kullanır (filename rglob fallback'i değil).
+    Önceki davranış: rglob ilk eşleşeni dönüyordu → valid dosya silinebiliyordu.
+    """
+    from PIL import Image
+    from src.validators.file_validator import FileValidator
+
+    root = tmp_path / "ds"
+    a = root / "group_a"; a.mkdir(parents=True)
+    b = root / "group_b"; b.mkdir(parents=True)
+
+    # group_a/dup.jpg = INVALID (çok küçük)
+    Image.new("RGB", (200, 200), "white").save(a / "dup.jpg", quality=85)
+    # group_b/dup.jpg = VALID (büyük)
+    Image.new("RGB", (1024, 1024), "red").save(b / "dup.jpg", quality=85)
+
+    v = FileValidator(validator_config)
+    images = collect_images(root, recursive=True)
+    results = [v.validate(p).to_dict() for p in images]
+
+    # Sadece group_a/dup.jpg invalid olmalı
+    invalid_results = [r for r in results if not r["valid"]]
+    assert len(invalid_results) == 1
+    assert "group_a" in invalid_results[0]["path"]
+
+    # apply_action: sadece invalid'i sil, VALID dosyaya dokunma
+    res = apply_action(results, source_root=root, action="delete")
+    assert len(res.entries) == 1
+    assert "group_a" in res.entries[0].original
+    # group_a/dup.jpg silindi, group_b/dup.jpg duruyor
+    assert not (a / "dup.jpg").exists()
+    assert (b / "dup.jpg").exists()
+
+
+def test_action_path_fallback_to_rglob_for_legacy_reports(tmp_path: Path):
+    """Eski rapor formatlarında 'path' field'ı yok — rglob fallback çalışmalı."""
+    (tmp_path / "lonely.jpg").write_bytes(b"")
+    res = apply_action(
+        [{"valid": False, "filename": "lonely.jpg", "reason": "test"}],  # path yok!
+        source_root=tmp_path,
+        action="delete",
+    )
+    assert len(res.entries) == 1
+    assert not (tmp_path / "lonely.jpg").exists()
 
 
 # ---------- undo_from_report ----------

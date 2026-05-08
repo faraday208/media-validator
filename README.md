@@ -241,7 +241,7 @@ uv sync --group dev
 uv run pytest
 ```
 
-39 test: validator unit + scanner (collect/apply/undo) + CLI e2e.
+43 test: validator unit + scanner (collect/apply/undo) + CLI e2e.
 
 ---
 
@@ -255,6 +255,8 @@ uv run pytest
 ---
 
 ## 🏷️ Sürüm
+
+**v0.2.1** — kritik bug fix: `apply_action` artık `FileValidationResult.path` (absolute) kullanıyor; recursive senaryoda aynı isimli dosyaların yanlış silinme/taşınma sorunu giderildi. Eski rapor formatlarına fallback (filename rglob) korunuyor. 43 test (4 yeni regression).
 
 **v0.2.0** — recursive scan, action layer (move/delete), undo, threshold CLI override'ları, 39 unit test, README.
 

@@ -24,7 +24,7 @@ Kullanım örnekleri:
 from __future__ import annotations
 
 import argparse
-import json
+import copy
 import sys
 from pathlib import Path
 
@@ -85,6 +85,10 @@ def _build_parser() -> argparse.ArgumentParser:
 def _load_config(path: Path | None) -> dict:
     cfg_path = path or (Path(__file__).parent / "config" / "settings.yaml")
     if not cfg_path.exists():
+        if path is not None:
+            # Kullanıcı --config X verdi ama X yok — sessizce default'a düşmek tehlikeli
+            print(f"Uyarı: Config dosyası bulunamadı, default'lar kullanılıyor: {cfg_path}",
+                  file=sys.stderr)
         return {}
     with open(cfg_path) as f:
         return yaml.safe_load(f) or {}
@@ -92,7 +96,7 @@ def _load_config(path: Path | None) -> dict:
 
 def _apply_overrides(config: dict, args: argparse.Namespace) -> dict:
     """CLI threshold flag'leri config dict'ine yedirir."""
-    cfg = json.loads(json.dumps(config))  # deep copy via json
+    cfg = copy.deepcopy(config)
     file_v = cfg.setdefault("file_validation", {})
     dims = cfg.setdefault("dimensions", {})
     aspect = dims.setdefault("aspect_ratio", {})
@@ -152,6 +156,8 @@ def main() -> int:
 
     # Undo modu — diğer her şeyi atla
     if args.undo:
+        if args.input or args.invalid_action != "none":
+            parser.error("--undo ile -i/--input veya --invalid-action birlikte kullanılamaz")
         return _run_undo(args)
 
     if not args.input:

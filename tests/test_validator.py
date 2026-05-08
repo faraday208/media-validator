@@ -92,3 +92,24 @@ def test_get_config_summary_returns_keys(validator_config):
     assert "allowed_formats" in s
     assert "min_short_edge" in s
     assert "aspect_ratio_range" in s
+
+
+def test_validate_stamps_absolute_path(tmp_path: Path, validator_config):
+    """v0.2.1: result.path absolute dosya yolu içerir.
+    Aynı isimli dosyaların farklı klasörlerde ayırt edilebilmesi için kritik."""
+    p = tmp_path / "ok.jpg"
+    _save_jpg(p, (1024, 1024))
+    r = FileValidator(validator_config).validate(p)
+    assert r.path
+    assert Path(r.path).is_absolute()
+    assert Path(r.path).resolve() == p.resolve()
+
+
+def test_validate_stamps_path_even_for_invalid(tmp_path: Path, validator_config):
+    """Hatalı dosya için de path set edilir."""
+    p = tmp_path / "bad.jpg"
+    _save_jpg(p, (200, 200))
+    r = FileValidator(validator_config).validate(p)
+    assert not r.valid
+    assert r.path
+    assert Path(r.path).resolve() == p.resolve()

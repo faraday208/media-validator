@@ -10,10 +10,9 @@ Kontroller:
 """
 
 from pathlib import Path
-from typing import Dict, Any, Tuple, Optional
+from typing import Dict, Any, Optional
 from dataclasses import dataclass, asdict
 from PIL import Image
-import os
 
 
 @dataclass
@@ -30,6 +29,9 @@ class FileValidationResult:
     aspect_ratio: float
     format: str
     mode: str  # RGB, RGBA, L, etc.
+    # Absolute dosya yolu — apply_action'ın doğru dosyayı bulması için.
+    # validate() sonradan set eder; eski raporlarda boş olabilir (back-compat).
+    path: str = ""
 
     def to_dict(self) -> Dict[str, Any]:
         return asdict(self)
@@ -67,8 +69,17 @@ class FileValidator:
             image_path: Görüntü dosyası yolu
 
         Returns:
-            FileValidationResult
+            FileValidationResult — `path` field'ı absolute dosya yolu olarak set edilir
         """
+        result = self._validate_inner(image_path)
+        # Absolute path — apply_action'ın aynı isimli dosyaları doğru ayırması için
+        try:
+            result.path = str(Path(image_path).resolve())
+        except OSError:
+            result.path = str(Path(image_path))
+        return result
+
+    def _validate_inner(self, image_path: str | Path) -> FileValidationResult:
         path = Path(image_path)
 
         # Default result for errors

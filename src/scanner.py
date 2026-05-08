@@ -135,9 +135,18 @@ def apply_action(
     for r in results:
         if r.get("valid"):
             continue
-        # FileValidationResult tek bir filename tutuyor (path'siz). Dosyayı bulmak için
-        # source_root altında ara — recursive senaryoda farklı alt klasörlerde olabilir.
-        original = _resolve_invalid_path(src_root, r.get("filename", ""))
+        # Önce absolute path (FileValidationResult.path, v0.2.1+).
+        # Yoksa eski rapor formatına fallback: filename ile rglob ara.
+        # Path-based çözüm, recursive senaryoda aynı isimli dosyaların karışmasını
+        # önler (örn. group_a/dup.jpg vs group_b/dup.jpg).
+        original: Path | None = None
+        path_str = r.get("path") or ""
+        if path_str:
+            candidate = Path(path_str)
+            if candidate.is_file():
+                original = candidate
+        if original is None:
+            original = _resolve_invalid_path(src_root, r.get("filename", ""))
         if original is None:
             result.skipped += 1
             continue
