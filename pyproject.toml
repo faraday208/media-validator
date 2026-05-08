@@ -1,6 +1,6 @@
 [project]
 name = "image-validator"
-version = "0.1.0"
+version = "0.2.0"
 description = "Image file validation: format, size, dimensions, aspect ratio, corruption check"
 requires-python = ">=3.11"
 readme = "README.md"
@@ -11,6 +11,16 @@ dependencies = [
     "pyyaml>=6.0",
     "tqdm>=4.65.0",
 ]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-q --tb=short"
 
 [tool.uv]
 package = false
