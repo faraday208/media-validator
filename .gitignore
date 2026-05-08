@@ -1,0 +1,50 @@
+# Python
+.venv/
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+
+# uv
+uv.lock
+
+# Env
+.env
+.env.local
+.env.*.local
+
+# Runtime
+*.log
+logs/
+reports/
+flagged/
+
+# Datasets (büyük binary)
+data/
+datasets/
+*.tar
+*.zip
+*.7z
+
+# Modeller (asla repo'da değil)
+*.safetensors
+*.ckpt
+*.pt
+*.pth
+*.onnx
+*.bin
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# OS
+Thumbs.db
+ehthumbs.db

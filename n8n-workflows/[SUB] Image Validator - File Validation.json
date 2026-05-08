@@ -1,0 +1,343 @@
+{
+  "name": "[SUB] Image Validator - File Validation",
+  "nodes": [
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "id": "trigger",
+      "name": "Input",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Gelen parametreleri al\nconst input = items[0].json;\n\n// Zorunlu: directory\nif (!input.directory) {\n  throw new Error('directory parametresi zorunlu!');\n}\n\n// API URL sabit\nconst API_URL = 'http://127.0.0.1:8100';\n\n// API Health Check config\nconst healthConfig = {\n  api_url: API_URL,\n  api_name: 'Image Validator API',\n  health_endpoint: '/health',\n  start_command: input.start_command || '',\n  max_retries: 3,\n  wait_seconds: 5\n};\n\n// Validation config\nconst validationConfig = {\n  directory: input.directory,\n  limit: input.limit || 0,\n  config: input.config || null\n};\n\nreturn [{ json: { healthConfig, validationConfig, api_url: API_URL } }];"
+      },
+      "id": "prepare-config",
+      "name": "Prepare Config",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "[UTILS] API Health Check & Retry"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "api_url": "={{ $json.healthConfig.api_url }}",
+            "api_name": "={{ $json.healthConfig.api_name }}",
+            "health_endpoint": "={{ $json.healthConfig.health_endpoint }}",
+            "start_command": "={{ $json.healthConfig.start_command }}",
+            "max_retries": "={{ $json.healthConfig.max_retries }}",
+            "wait_seconds": "={{ $json.healthConfig.wait_seconds }}"
+          }
+        }
+      },
+      "id": "api-health-check",
+      "name": "API Health Check",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "api-success",
+              "leftValue": "={{ $json.success }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "api-ok-check",
+      "name": "API OK?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [900, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// API failed\nconst prepareConfig = $('Prepare Config').item.json;\nconst apiResult = items[0].json;\n\nreturn [{\n  json: {\n    valid: false,\n    reason: 'api_unavailable',\n    error: apiResult.message || 'API başlatılamadı',\n    api_name: apiResult.api_name,\n    directory: prepareConfig.validationConfig.directory\n  }\n}];"
+      },
+      "id": "api-failed",
+      "name": "API Failed",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1120, 420]
+    },
+    {
+      "parameters": {
+        "jsCode": "// API OK - validation config'i al\nconst prepareConfig = $('Prepare Config').item.json;\nreturn [{ json: { ...prepareConfig.validationConfig, api_url: prepareConfig.api_url } }];"
+      },
+      "id": "get-validation-config",
+      "name": "Get Validation Config",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1120, 180]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.api_url }}/validate/directory",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ directory: $json.directory, limit: $json.limit, config: $json.config }) }}",
+        "options": {}
+      },
+      "id": "http-validate",
+      "name": "Validate Directory",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1340, 180]
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "results",
+        "options": {}
+      },
+      "id": "split-results",
+      "name": "Split Results",
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [1560, 180]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "condition-invalid",
+              "leftValue": "={{ $json.valid }}",
+              "rightValue": false,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "filter-invalid",
+      "name": "Filter Invalid",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2,
+      "position": [1780, 80]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "condition-valid",
+              "leftValue": "={{ $json.valid }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "filter-valid",
+      "name": "Filter Valid",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2,
+      "position": [1780, 280]
+    },
+    {
+      "parameters": {
+        "content": "## [SUB] File Validation\n\n**API:** `http://127.0.0.1:8100`\n\n---\n\n**Giriş Parametreleri:**\n```json\n{\n  \"directory\": \"/path/to/images\",\n  \"limit\": 0,\n  \"config\": { ... },\n  \"start_command\": \"...\"\n}\n```\n\n---\n\n### Zorunlu:\n- `directory`: Klasör yolu\n\n### Opsiyonel:\n- `limit`: Max dosya (0=all)\n- `config`: Override değerler\n- `start_command`: API başlatma",
+        "height": 400,
+        "width": 280
+      },
+      "id": "sticky-input",
+      "name": "Sticky Input",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [200, -120]
+    },
+    {
+      "parameters": {
+        "content": "## Config Override\n\n```json\n{\n  \"min_short_edge\": 1024,\n  \"max_short_edge\": 4096,\n  \"min_file_size_kb\": 50,\n  \"max_file_size_mb\": 20,\n  \"min_aspect_ratio\": 0.5,\n  \"max_aspect_ratio\": 2.0,\n  \"allowed_formats\": [\"jpg\", \"png\"]\n}\n```\n\n---\n\n### Red Sebepleri:\n- `api_unavailable`\n- `file_too_small`\n- `file_too_large`\n- `invalid_format`\n- `too_small` / `too_large`\n- `aspect_too_narrow/wide`\n- `corrupted`",
+        "height": 400,
+        "width": 260
+      },
+      "id": "sticky-defaults",
+      "name": "Sticky Config",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [500, -120]
+    },
+    {
+      "parameters": {
+        "content": "### Valid\nSonraki: Quality Check",
+        "height": 80,
+        "width": 160,
+        "color": 4
+      },
+      "id": "sticky-valid",
+      "name": "Sticky Valid",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [1760, 380]
+    },
+    {
+      "parameters": {
+        "content": "### Invalid\n`reason` field",
+        "height": 80,
+        "width": 160,
+        "color": 2
+      },
+      "id": "sticky-invalid",
+      "name": "Sticky Invalid",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [1760, 0]
+    },
+    {
+      "parameters": {
+        "content": "### API Health Check\n:8100 kontrol",
+        "height": 80,
+        "width": 160,
+        "color": 6
+      },
+      "id": "sticky-health",
+      "name": "Sticky Health",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [660, 200]
+    }
+  ],
+  "connections": {
+    "Input": {
+      "main": [
+        [
+          {
+            "node": "Prepare Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Config": {
+      "main": [
+        [
+          {
+            "node": "API Health Check",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "API Health Check": {
+      "main": [
+        [
+          {
+            "node": "API OK?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "API OK?": {
+      "main": [
+        [
+          {
+            "node": "Get Validation Config",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "API Failed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Validation Config": {
+      "main": [
+        [
+          {
+            "node": "Validate Directory",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate Directory": {
+      "main": [
+        [
+          {
+            "node": "Split Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Results": {
+      "main": [
+        [
+          {
+            "node": "Filter Invalid",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Filter Valid",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": []
+}

@@ -1,0 +1,27 @@
+[project]
+name = "image-validator"
+version = "0.1.0"
+description = "Image file validation: format, size, dimensions, aspect ratio, corruption check"
+requires-python = ">=3.11"
+readme = "README.md"
+authors = [{ name = "faraday208" }]
+keywords = ["image", "validation", "dataset", "preprocessing", "ai"]
+dependencies = [
+    "pillow>=10.0.0",
+    "pyyaml>=6.0",
+    "fastapi>=0.109.0",
+    "uvicorn>=0.27.0",
+    "python-multipart>=0.0.6",
+    "click>=8.1.0",
+    "tqdm>=4.65.0",
+]
+
+[tool.uv]
+package = false
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+bypass-selection = true

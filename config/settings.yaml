@@ -1,0 +1,40 @@
+# Image Quality Checker Configuration
+# n8n API + CLI için ayarlar
+
+server:
+  host: "0.0.0.0"
+  port: 8100
+
+# Adım 1: Dosya Validasyonu
+file_validation:
+  allowed_formats:
+    - jpg
+    - jpeg
+    - png
+    - webp
+  min_file_size_kb: 100       # 100KB altı muhtemelen bozuk/thumbnail
+  max_file_size_mb: 50        # 50MB üzeri muhtemelen raw
+
+# Boyut Kontrolleri
+dimensions:
+  min_short_edge: 512         # SDXL minimum
+  max_short_edge: 8192        # Çok büyük = gereksiz
+  aspect_ratio:
+    min: 0.5                  # 1:2 (dikey limit)
+    max: 2.0                  # 2:1 (yatay limit)
+
+# Adım 2: Kalite Kontrolleri (sonra eklenecek)
+quality:
+  blur_threshold: 100         # Laplacian variance
+  brightness:
+    min: 30
+    max: 225
+  contrast_threshold: 15
+  bpp:
+    min: 0.1                  # Bytes per pixel minimum
+
+# Adım 3: İçerik Analizi (sonra eklenecek)
+content:
+  check_watermark: true
+  check_text: true
+  max_text_ratio: 0.15        # Ekranın %15'inden fazla text = reject
