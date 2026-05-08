@@ -172,7 +172,7 @@ CLI flag'leri **override** eder. Config eksikse default'lar (yukarıdaki değerl
 ## 🔌 In-process (library) kullanım
 
 ```python
-from src import FileValidator, collect_images, apply_action, undo_from_report
+from validator_core import FileValidator, collect_images, apply_action, undo_from_report
 
 config = {
     "file_validation": {"allowed_formats": ["jpg", "png"], "min_file_size_kb": 50},

@@ -1,6 +1,6 @@
 [project]
 name = "media-validator"
-version = "0.3.0"
+version = "0.3.1"
 description = "Media file validation (image — video desteği gelecek): format, boyut, dimensions, aspect ratio, bütünlük"
 requires-python = ">=3.11"
 readme = "README.md"

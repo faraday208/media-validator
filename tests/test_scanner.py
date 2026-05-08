@@ -3,14 +3,14 @@ from pathlib import Path
 
 import pytest
 
-from src.scanner import (
+from validator_core.scanner import (
     DEFAULT_IMAGE_EXTS,
     apply_action,
     collect_images,
     undo_from_report,
     write_report,
 )
-from src.validators.file_validator import FileValidator
+from validator_core.validators.file_validator import FileValidator
 
 
 # ---------- collect_images ----------
@@ -147,7 +147,7 @@ def test_action_uses_absolute_path_not_filename_lookup(tmp_path: Path, validator
     Önceki davranış: rglob ilk eşleşeni dönüyordu → valid dosya silinebiliyordu.
     """
     from PIL import Image
-    from src.validators.file_validator import FileValidator
+    from validator_core.validators.file_validator import FileValidator
 
     root = tmp_path / "ds"
     a = root / "group_a"; a.mkdir(parents=True)

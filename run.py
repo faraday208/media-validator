@@ -31,7 +31,7 @@ from pathlib import Path
 import yaml
 from tqdm import tqdm
 
-from src.scanner import (
+from validator_core.scanner import (
     DEFAULT_IMAGE_EXTS,
     DEFAULT_REPORT_NAME,
     apply_action,
@@ -39,7 +39,7 @@ from src.scanner import (
     undo_from_report,
     write_report,
 )
-from src.validators.file_validator import FileValidator
+from validator_core.validators.file_validator import FileValidator
 
 
 def _build_parser() -> argparse.ArgumentParser:

@@ -3,7 +3,7 @@ from pathlib import Path
 
 from PIL import Image
 
-from src.validators.file_validator import FileValidator
+from validator_core.validators.file_validator import FileValidator
 
 
 def _save_jpg(path: Path, size: tuple[int, int], color="red") -> None:
