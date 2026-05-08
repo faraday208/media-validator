@@ -1,4 +1,4 @@
-"""Test fixture'ları — image-validator için."""
+"""Test fixture'ları — media-validator için."""
 import sys
 from pathlib import Path
 

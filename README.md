@@ -1,6 +1,7 @@
-# image-validator
+# media-validator
 
-> Görsel dataset'ler için format / boyut / aspect / bütünlük validasyonu.
+> Medya dataset'leri için format / boyut / aspect / bütünlük validasyonu.
+> Şu an **görsel** odaklı; video desteği gelecek sürümlerde planlanıyor.
 > Hatalı dosyaları rapor eder, opsiyonel olarak `/rejected`'a taşır veya siler.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
@@ -32,8 +33,8 @@ Threshold'lar `config/settings.yaml`'den okunur, **CLI flag'leri** ile ezilebili
 ## 🚀 Kurulum
 
 ```bash
-git clone https://github.com/faraday208/image-validator
-cd image-validator
+git clone https://github.com/faraday208/media-validator
+cd media-validator
 uv sync
 ```
 
@@ -206,7 +207,7 @@ print(f"Taşınan: {len(res.entries)}")
 ```jsonc
 {
   "version": "1",
-  "tool": "image-validator",
+  "tool": "media-validator",
   "source_root": "/abs/path/to/dataset",
   "recursive": true,
   "allowed_exts": [".jpg", ".jpeg", ".png", ".webp"],
@@ -249,12 +250,14 @@ uv run pytest
 
 - Recursive move'da invalid dosyalar **flat** olarak `invalid_dir`'e iner (alt klasör hiyerarşisi korunmaz). İsim çakışması durumunda `_1`, `_2` eklenir.
 - `--invalid-action delete` **irreversible** — silinen dosya geri gelmez. Önce `move` ile dene, sonra silmek istiyorsan `rejected`'i manuel sil.
-- Aynı isimde birden fazla dosya farklı alt klasörlerde varsa (recursive scan), `apply_action` ilk eşleşeni alır (sıralı). Bu durum nadir; çakışma yaşarsanız önce `media-organizer` ile rename yapın.
 - Tek thread (Pillow CPU-bound). 10K+ dosyada birkaç dakika sürebilir.
+- Şu an sadece **görsel** validasyonu (Pillow). Video desteği planlı (ffprobe entegrasyonu).
 
 ---
 
 ## 🏷️ Sürüm
+
+**v0.3.0** — paket adı `image-validator` → `media-validator` (media-organizer ile tutarlı; ileride video desteği için isim hazır). Rapor `tool: "media-validator"`. Eski raporları (`tool: "image-validator"`) `--undo` hala kabul ediyor (back-compat).
 
 **v0.2.1** — kritik bug fix: `apply_action` artık `FileValidationResult.path` (absolute) kullanıyor; recursive senaryoda aynı isimli dosyaların yanlış silinme/taşınma sorunu giderildi. Eski rapor formatlarına fallback (filename rglob) korunuyor. 43 test (4 yeni regression).
 

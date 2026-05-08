@@ -1,4 +1,4 @@
-"""image-validator — public API.
+"""media-validator — public API.
 
 In-process kullanım için:
     from src import FileValidator, collect_images, apply_action, undo_from_report

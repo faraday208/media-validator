@@ -1,11 +1,11 @@
 [project]
-name = "image-validator"
-version = "0.2.1"
-description = "Image file validation: format, size, dimensions, aspect ratio, corruption check"
+name = "media-validator"
+version = "0.3.0"
+description = "Media file validation (image — video desteği gelecek): format, boyut, dimensions, aspect ratio, bütünlük"
 requires-python = ">=3.11"
 readme = "README.md"
 authors = [{ name = "faraday208" }]
-keywords = ["image", "validation", "dataset", "preprocessing", "ai"]
+keywords = ["media", "image", "validation", "dataset", "preprocessing", "ai"]
 dependencies = [
     "pillow>=10.0.0",
     "pyyaml>=6.0",

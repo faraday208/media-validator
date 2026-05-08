@@ -18,7 +18,9 @@ from pathlib import Path
 from typing import Iterable
 
 REPORT_VERSION = "1"
-REPORT_TOOL = "image-validator"
+REPORT_TOOL = "media-validator"
+# Back-compat: v0.2.x'te tool adı "image-validator" idi. Eski raporları da kabul et.
+ACCEPTED_TOOL_NAMES = frozenset({"media-validator", "image-validator"})
 DEFAULT_REPORT_NAME = "validate_report.json"
 
 DEFAULT_IMAGE_EXTS: frozenset[str] = frozenset({
@@ -262,8 +264,12 @@ def undo_from_report(
     with open(report_path, encoding="utf-8") as f:
         report = json.load(f)
 
-    if report.get("tool") != REPORT_TOOL:
-        raise ValueError(f"Report tool mismatch: expected {REPORT_TOOL}, got {report.get('tool')!r}")
+    report_tool = report.get("tool")
+    if report_tool not in ACCEPTED_TOOL_NAMES:
+        raise ValueError(
+            f"Report tool mismatch: expected one of {sorted(ACCEPTED_TOOL_NAMES)}, "
+            f"got {report_tool!r}"
+        )
 
     restored = 0
     skipped = 0

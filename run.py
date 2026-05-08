@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Image Validator — CLI
+Media Validator — CLI
 
 Kullanım örnekleri:
   # Sadece raporla (default), top-level scan
@@ -44,7 +44,7 @@ from src.validators.file_validator import FileValidator
 
 def _build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(
-        description="Image Validator (CLI) — format/boyut/aspect/bütünlük doğrulama",
+        description="Media Validator (CLI) — format/boyut/aspect/bütünlük doğrulama",
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     p.add_argument("-i", "--input", help="Input klasörü (validation modu için zorunlu)")
@@ -188,7 +188,7 @@ def main() -> int:
         images = images[: args.limit]
 
     print(f"\n{'='*60}")
-    print(f"Image Validator")
+    print(f"Media Validator")
     print(f"{'='*60}")
     print(f"Input:     {input_dir}")
     print(f"Recursive: {args.recursive}")

@@ -97,7 +97,7 @@ def test_main_writes_report(monkeypatch, mixed_dataset: Path):
     report = mixed_dataset / "validate_report.json"
     assert report.exists()
     data = json.loads(report.read_text())
-    assert data["tool"] == "image-validator"
+    assert data["tool"] == "media-validator"
     assert data["recursive"] is True
     assert data["summary"]["total"] >= 7
     assert data["summary"]["invalid"] >= 4
