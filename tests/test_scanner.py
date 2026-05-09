@@ -85,6 +85,30 @@ def test_action_move_relocates_invalid(mixed_dataset: Path, tmp_path: Path, vali
     assert (mixed_dataset / "ok1.jpg").exists()
 
 
+def test_action_move_preserves_tree_hierarchy(tmp_path: Path, validator_config):
+    """Tree-mode dataset (00 organize çıktısı) → invalid'ler subdir hiyerarşisini
+    korumalı. Aynı isimli dosyalar farklı subdir'lerde collision'sız taşınmalı."""
+    from PIL import Image
+
+    src = tmp_path / "ds"
+    sub_a = src / "tatil-2024"
+    sub_b = src / "tatil-2025"
+    sub_a.mkdir(parents=True)
+    sub_b.mkdir(parents=True)
+    # Aynı isim, farklı subdir, ikisi de "tiny" (invalid by min_short_edge)
+    Image.new("RGB", (32, 32), "red").save(sub_a / "IMG_001.jpg", "JPEG")
+    Image.new("RGB", (32, 32), "blue").save(sub_b / "IMG_001.jpg", "JPEG")
+
+    results = _validate_all(src, validator_config)
+    rejected = tmp_path / "rejected"
+    res = apply_action(results, source_root=src, action="move", invalid_dir=rejected)
+
+    moved = {Path(e.moved_to).relative_to(rejected) for e in res.entries}
+    assert Path("tatil-2024/IMG_001.jpg") in moved
+    assert Path("tatil-2025/IMG_001.jpg") in moved
+    assert all("_1.jpg" not in str(p) for p in moved)
+
+
 def test_action_move_dry_run_does_not_touch_files(mixed_dataset: Path, tmp_path: Path, validator_config):
     rejected = tmp_path / "rejected"
     results = _validate_all(mixed_dataset, validator_config)

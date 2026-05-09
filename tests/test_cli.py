@@ -11,9 +11,16 @@ from run import _apply_overrides, _build_parser, _resolve_report_path, main
 def test_parser_defaults():
     args = _build_parser().parse_args(["-i", "/tmp/x"])
     assert args.input == "/tmp/x"
-    assert args.recursive is False
+    # v0.4.0: recursive default True (cross-tool tutarlılığı — dedup, quality,
+    # watermark, resize hepsi default True). Opt-out için --no-recursive.
+    assert args.recursive is True
     assert args.invalid_action == "none"
     assert args.dry_run is False
+
+
+def test_parser_no_recursive_opt_out():
+    args = _build_parser().parse_args(["-i", "/tmp/x", "--no-recursive"])
+    assert args.recursive is False
 
 
 def test_parser_full_flags():

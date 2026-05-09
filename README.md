@@ -257,6 +257,8 @@ uv run pytest
 
 ## 🏷️ Sürüm
 
+**v0.4.0** — pipeline integrasyonu cross-tool tutarlılık. **BC change**: `--recursive` default True (önceki opt-in); diğer tüm tool'larla (dedup, quality, watermark, resize) tutarlı. Opt-out için `--no-recursive` flag eklendi. Ayrıca **tree-preserving move**: recursive + tree-mode dataset'te `--invalid-action move` subdir hiyerarşisini koruyor (`relative_to(source_root)` mirror). +2 regression test (45 toplam).
+
 **v0.3.0** — paket adı `image-validator` → `media-validator` (media-organizer ile tutarlı; ileride video desteği için isim hazır). Rapor `tool: "media-validator"`. Eski raporları (`tool: "image-validator"`) `--undo` hala kabul ediyor (back-compat).
 
 **v0.2.1** — kritik bug fix: `apply_action` artık `FileValidationResult.path` (absolute) kullanıyor; recursive senaryoda aynı isimli dosyaların yanlış silinme/taşınma sorunu giderildi. Eski rapor formatlarına fallback (filename rglob) korunuyor. 43 test (4 yeni regression).

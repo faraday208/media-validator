@@ -49,7 +49,10 @@ def _build_parser() -> argparse.ArgumentParser:
     )
     p.add_argument("-i", "--input", help="Input klasörü (validation modu için zorunlu)")
     p.add_argument("-o", "--output", help=f"JSON rapor çıktısı (default: <input>/{DEFAULT_REPORT_NAME})")
-    p.add_argument("--recursive", action="store_true", help="Alt klasörleri de tara")
+    p.add_argument("--recursive", action="store_true", default=True,
+                   help="Alt klasörleri de tara (default: True)")
+    p.add_argument("--no-recursive", action="store_false", dest="recursive",
+                   help="Sadece üst seviye dosyalar")
     p.add_argument("--limit", type=int, default=0, help="Max dosya sayısı (0 = limitsiz)")
 
     # Aksiyon

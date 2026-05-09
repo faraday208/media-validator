@@ -168,9 +168,17 @@ def apply_action(
                 deleted=True,
             ))
         elif action == "move" and dst_root:
-            target = _unique_target(dst_root / original.name)
+            # Tree-preserving: original'ın src_root'a göre relative path'i
+            # dst_root altında mirror edilir. Source dışındaysa flat fallback.
+            try:
+                rel = original.resolve().relative_to(src_root)
+                proposed = dst_root / rel
+            except ValueError:
+                proposed = dst_root / original.name
+            target = _unique_target(proposed)
             if not dry_run:
                 try:
+                    target.parent.mkdir(parents=True, exist_ok=True)
                     shutil.move(str(original), str(target))
                 except OSError:
                     result.skipped += 1
