@@ -54,6 +54,12 @@ class ActionResult:
     skipped: int = 0  # var olmayan / izin sorunu yaşanan dosyalar
 
 
+# Recursive scan'in atlayacağı pipeline klasörleri — reject hedefi ve rapor
+# dizini. Reject dir dataset içine düşse bile (relative invalid_dir) bu dosyalar
+# tekrar taranıp yeniden işlenmez.
+_EXCLUDED_SCAN_DIRS = {"_rejected", "report"}
+
+
 def collect_images(
     directory: Path | str,
     *,
@@ -79,7 +85,10 @@ def collect_images(
     out: list[Path] = []
 
     if recursive:
-        for dirpath, _dirnames, filenames in os.walk(root, followlinks=False):
+        for dirpath, dirnames, filenames in os.walk(root, followlinks=False):
+            # Pipeline klasörlerini atla — recursive scan elenen (_rejected) veya
+            # raporlanan (report) dosyaları geri yutmasın.
+            dirnames[:] = [d for d in dirnames if d not in _EXCLUDED_SCAN_DIRS]
             for fn in filenames:
                 p = Path(dirpath) / fn
                 if p.suffix.lower() in exts:

@@ -50,6 +50,23 @@ def test_collect_is_sorted(mixed_dataset: Path):
     assert paths == sorted(paths)
 
 
+def test_collect_skips_rejected_and_report_dirs(tmp_path):
+    """Recursive scan _rejected/report klasörlerini atlar — reject dir dataset
+    içine düşse bile elenen dosyaları geri yutmaz."""
+    (tmp_path / "keep.jpg").write_bytes(b"x")
+    (tmp_path / "_rejected" / "01-validate").mkdir(parents=True)
+    (tmp_path / "_rejected" / "01-validate" / "elenen.jpg").write_bytes(b"x")
+    (tmp_path / "report").mkdir()
+    (tmp_path / "report" / "rapor.jpg").write_bytes(b"x")
+    (tmp_path / "sub").mkdir()
+    (tmp_path / "sub" / "deep.jpg").write_bytes(b"x")
+    names = [p.name for p in collect_images(tmp_path, recursive=True)]
+    assert "keep.jpg" in names
+    assert "deep.jpg" in names          # meşru alt klasör taranır
+    assert "elenen.jpg" not in names    # _rejected atlandı
+    assert "rapor.jpg" not in names     # report atlandı
+
+
 # ---------- apply_action ----------
 
 def _validate_all(dataset: Path, config: dict) -> list[dict]:
