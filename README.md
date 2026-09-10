@@ -13,6 +13,28 @@
 
 ---
 
+## English
+
+**What it does.** Validates an image dataset against seven checks: readability, file size bounds, format, dimensions, aspect ratio and file integrity. Reports every failure with a reason code and can optionally move bad files to `/rejected` or delete them.
+
+**Install**
+
+```bash
+git clone https://github.com/faraday208/media-validator
+cd media-validator
+uv sync
+```
+
+**Basic usage**
+
+```bash
+uv run python run.py -i ./dataset
+```
+
+Step **01** of the [`media-dataset-prep`](https://github.com/faraday208/media-dataset-prep) pipeline; also works standalone. The detailed documentation below is in Turkish.
+
+---
+
 ## 🎯 Ne yapıyor?
 
 Bir dataset klasörünü tarar ve her görseli yedi kontrolden geçirir:
